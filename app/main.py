@@ -1,0 +1,10 @@
+from fastapi import FastAPI
+
+from app.config import settings
+from app.routes.chat import router as chat_router
+from app.routes.health import router as health_router
+
+app = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
+
+app.include_router(health_router)
+app.include_router(chat_router)
