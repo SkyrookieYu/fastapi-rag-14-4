@@ -37,7 +37,7 @@ allowed-tools: Bash, Read
 - production：`docker compose -f docker-compose.prod.yml up -d`
 
 ### 5. 驗證
-- 呼叫 `/health` endpoint 確認服務啟動
+- 執行 `bash .claude/skills/deploy/scripts/health-check.sh` 確認服務啟動（內建重試機制）
 - 如果 health check 失敗，自動 rollback 到前一個版本
 
 ### 6. 輸出摘要
