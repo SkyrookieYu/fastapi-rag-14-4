@@ -9,6 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 常用指令
 
 ```bash
+# 安裝依賴
+pip install -r requirements.txt
+
 # 啟動開發伺服器
 uvicorn app.main:app --reload
 
@@ -36,18 +39,24 @@ HTTP Request
       → app/models/  （Pydantic v2 資料模型：定義 request/response schema）
 ```
 
-- `app/main.py`：FastAPI app 進入點，掛載所有 router
-- `app/config.py`：用 pydantic-settings 的 `BaseSettings` 讀取環境變數，支援 `.env` 檔案
-- `app/routes/health.py`：`GET /health`
-- `app/routes/chat.py`：`POST /api/chat` 和 `GET /api/documents`，前綴為 `/api`
-- `app/services/rag_service.py`：RAG 業務邏輯（目前 mock），未來替換時只需改這一層
+進入點為 `app/main.py`，設定值透過 `app/config.py`（pydantic-settings `BaseSettings`）從環境變數或 `.env` 載入。未來替換真正 RAG 引擎時，只需改 `app/services/rag_service.py` 這一層。
+
+## API 端點
+
+| Method | Path             | 說明             |
+|--------|------------------|------------------|
+| GET    | `/health`        | 健康檢查          |
+| POST   | `/api/chat`      | RAG 問答          |
+| GET    | `/api/documents` | 文件清單          |
+
+`/api/chat` 的 request body：`{"query": "問題", "user_id": "u1"}`
 
 ## 重要慣例
 
 - **全部 async**：所有 handler 和 service 函式皆為 `async def`
-- **Pydantic v2**：request/response model 定義在 `app/models/schemas.py`，使用 `BaseModel`
-- **測試用 httpx**：使用 `ASGITransport` + `AsyncClient`（FastAPI 官方推薦），fixture 用 `@pytest_asyncio.fixture`
-- **pytest-asyncio strict mode**：async fixture 必須用 `@pytest_asyncio.fixture` 而非 `@pytest.fixture`，測試函式須加 `@pytest.mark.asyncio`
+- **Pydantic v2**：request/response model 定義在 `app/models/schemas.py`
+- **測試用 httpx**：使用 `ASGITransport` + `AsyncClient`（FastAPI 官方推薦），fixture 用 `@pytest_asyncio.fixture`，測試函式須加 `@pytest.mark.asyncio`
+- **chat router 前綴**：`APIRouter(prefix="/api")`，新增 chat 相關端點時加在此 router
 
 ## Docker 環境
 
